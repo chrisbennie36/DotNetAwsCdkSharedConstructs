@@ -6,7 +6,7 @@ using Amazon.CDK.AWS.IAM;
 using Amazon.CDK.AWS.S3.Assets;
 using Constructs;
 
-namespace AwsCdkSharedConstructs;
+namespace AwsCdkSharedConstructs.ElasticBeanstalk;
 
 public class ElasticBeanstalk()
 {
@@ -14,7 +14,7 @@ public class ElasticBeanstalk()
 
     public void Build(Construct scope, ElasticBeanstalkProps props)
     {
-        IRole role= Role.FromRoleName(scope, $"{props.ApplicationId}-eb-app-role", props.ExistingRoleName);
+        IRole role = Role.FromRoleName(scope, $"{props.ApplicationId}-eb-app-role", props.ExistingRoleName);
 
         var instanceProfile = new InstanceProfile(scope, $"{props.ApplicationId}-eb-instance-profile", new InstanceProfileProps
         {

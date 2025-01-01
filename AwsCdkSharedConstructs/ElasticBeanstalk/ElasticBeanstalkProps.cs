@@ -1,6 +1,6 @@
 using Amazon.CDK;
 
-namespace AwsCdkSharedConstructs;
+namespace AwsCdkSharedConstructs.ElasticBeanstalk;
 
 public class ElasticBeanstalkProps : StackProps
 {
