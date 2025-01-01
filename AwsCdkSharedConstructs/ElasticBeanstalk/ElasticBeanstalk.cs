@@ -16,7 +16,9 @@ public class ElasticBeanstalk()
     {
         IRole role = Role.FromRoleName(scope, $"{props.ApplicationId}-eb-app-role", props.ExistingRoleName);
 
-        var instanceProfile = new InstanceProfile(scope, $"{props.ApplicationId}-eb-instance-profile", new InstanceProfileProps
+        string instanceProfileId = $"{props.ApplicationId}-eb-instance-profile";
+
+        var instanceProfile = new InstanceProfile(scope, instanceProfileId, new InstanceProfileProps
         {
             Role = role,
             InstanceProfileName = props.InstanceProfileName
@@ -61,6 +63,14 @@ public class ElasticBeanstalk()
             SolutionStackName = props.SolutionStackName,
             VersionLabel = applicationVersion.Ref   //Critical apparently
         });
+
+        if(props.UseElasticIp)
+        {
+            var elasticIp = new CfnEIP(scope, $"{props.ApplicationId}-elastic-ip", new CfnEIPProps 
+            {
+                InstanceId = instanceProfileId
+            });
+        }
 
         elasticBeanstalkEnvironment.AddDependency(ElasticBeanstalkApplication);
         applicationVersion.AddDependency(ElasticBeanstalkApplication);

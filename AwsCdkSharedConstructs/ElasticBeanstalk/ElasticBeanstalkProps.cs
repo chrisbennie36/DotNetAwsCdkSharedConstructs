@@ -14,4 +14,5 @@ public class ElasticBeanstalkProps : StackProps
     public string AutoScalingMinSize { get; set; } = "1";
     public string EnvironmentName { get; set; } = "Projects"; //Must be > 4 chars
     public string SolutionStackName { get; set; } = "64bit Amazon Linux 2023 v3.2.1 running .NET 8";
+    public bool UseElasticIp { get; set; }
 }
