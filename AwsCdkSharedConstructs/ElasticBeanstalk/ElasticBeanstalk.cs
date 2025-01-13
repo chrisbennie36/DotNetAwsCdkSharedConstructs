@@ -66,13 +66,54 @@ public class ElasticBeanstalk()
 
         if(props.UseElasticIp)
         {
-            var elasticIp = new CfnEIP(scope, $"{props.ApplicationId}-elastic-ip", new CfnEIPProps 
+            _ = new CfnEIP(scope, $"{props.ApplicationId}-elastic-ip", new CfnEIPProps 
             {
                 InstanceId = instanceProfileId
             });
         }
 
+        if(props.LoadBalancerProps != null)
+        {
+            AddLoadBalancer(elasticBeanstalkEnvironment, props.LoadBalancerProps);
+        }
+
         elasticBeanstalkEnvironment.AddDependency(ElasticBeanstalkApplication);
         applicationVersion.AddDependency(ElasticBeanstalkApplication);
+    }
+
+    private void AddLoadBalancer(CfnEnvironment cfnEnvironment, ElasticBeanstalkLoadBalancerProps props)
+    {
+        List<CfnEnvironment.OptionSettingProperty> elasticBeanstalkLoadBalancerSettings = new List<CfnEnvironment.OptionSettingProperty>
+        {
+            new CfnEnvironment.OptionSettingProperty { Namespace = "aws:elasticbeanstalk:environment", OptionName = "LoadBalancerType", Value = props.LoadBalancerType.ToString().ToLower() },
+            new CfnEnvironment.OptionSettingProperty { Namespace = "aws:elbv2:listener:default", OptionName = "Protocol", Value = props.ProtocolType.ToString().ToUpper() }
+        }; 
+
+        foreach(string certificateArn in props.SslCertificateArns)
+        {
+            elasticBeanstalkLoadBalancerSettings.Add(new CfnEnvironment.OptionSettingProperty { Namespace = "aws:elbv2:listender:default", OptionName = "SSLCertificateArns", Value = certificateArn });
+        }
+
+        if(props.SharedLoadBalancerProps != null)
+        {
+            AddSharedLoadBalancer(props.SharedLoadBalancerProps, elasticBeanstalkLoadBalancerSettings);
+        }
+
+        List<CfnEnvironment.OptionSettingProperty> elasticBeanstalkSettings = ((CfnEnvironment.OptionSettingProperty[])cfnEnvironment.OptionSettings).ToList();
+
+        elasticBeanstalkSettings.AddRange(elasticBeanstalkLoadBalancerSettings);
+
+        cfnEnvironment.OptionSettings = elasticBeanstalkSettings.ToArray();
+    }
+
+    private void AddSharedLoadBalancer(ElasticBeanstalkSharedLoadBalancerProps props, List<CfnEnvironment.OptionSettingProperty> loadBalancerSettings)
+    {
+        List<CfnEnvironment.OptionSettingProperty> sharedLoadBalancerSettings = new List<CfnEnvironment.OptionSettingProperty>
+        {
+            new CfnEnvironment.OptionSettingProperty { Namespace = "aws:elasticbeanstalk:environment", OptionName = "IsShared", Value = "true" },
+            new CfnEnvironment.OptionSettingProperty { Namespace = "aws:elbv2:loadbalancer", OptionName = "SharedLoadBalancer", Value = props.SharedLoadBalancerArn}
+        };
+
+        loadBalancerSettings.AddRange(sharedLoadBalancerSettings);
     }
 }
