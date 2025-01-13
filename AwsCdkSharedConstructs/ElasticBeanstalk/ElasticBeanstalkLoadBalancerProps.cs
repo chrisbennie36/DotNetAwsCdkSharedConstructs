@@ -26,5 +26,5 @@ public enum ProtocolType
 {
     Http,
     Https,
-    Tcp
+    Tcp //Network Load Balancer only
 }
