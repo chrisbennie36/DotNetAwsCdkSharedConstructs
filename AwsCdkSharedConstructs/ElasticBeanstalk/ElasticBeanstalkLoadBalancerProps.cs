@@ -25,5 +25,6 @@ public enum LoadBalancerType
 public enum ProtocolType 
 {
     Http,
-    Https
+    Https,
+    Tcp
 }
